@@ -1,0 +1,52 @@
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - gateway1
+      - gateway2
+
+  gateway1:
+    build: ./backend/gateway
+    image: my-gateway-image     # Builds the image once and names it
+    env_file:
+      - ./backend/gateway/.env
+    environment:
+      - SERVER_NAME=first gateway
+    ports:
+      - "8001:8000"
+
+  gateway2:
+    image: my-gateway-image     # Reuses the built image to prevent cache errors
+    env_file:
+      - ./backend/gateway/.env
+    environment:
+      - SERVER_NAME=dusra gateway
+    ports:
+      - "8002:8000"
+    depends_on:
+      - gateway1                # Ensures gateway1 builds the image first
+
+  auth-service:
+    build: ./backend/services/auth
+    env_file:
+      - ./backend/services/auth/.env
+    ports:
+      - "5001:8001"
+
+  order-service:
+    build: ./backend/services/order
+    env_file:
+      - ./backend/services/order/.env
+    ports:
+      - "5002:8002"
+
+  product-service:
+    build: ./backend/services/product
+    env_file:
+      - ./backend/services/product/.env
+    ports:
+      - "5003:8003"

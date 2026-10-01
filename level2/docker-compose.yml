@@ -3,4 +3,12 @@ services:
     image: redis
     ports:
       - "6379:6379"
+
+  server:
+    build:
+      dockerfile: ./server
+    env_file:
+      - ./server/.env
+    ports:
+      - 5000:7000
       
